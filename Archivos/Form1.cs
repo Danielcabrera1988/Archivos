@@ -18,50 +18,54 @@ namespace Archivos
         }
         private void BtnMostrar_Click(object sender, EventArgs e)
         {
-            if (txtBoxRuta.Text != "")
+            try
             {
-                DirectoryInfo dir = new DirectoryInfo(@txtBoxRuta.Text);
-                FileInfo[] Files = dir.GetFiles("*." + cmbBoxExt.Text, SearchOption.AllDirectories);
-                DirectoryInfo[] dirs = dir.GetDirectories("*", SearchOption.AllDirectories);//muestra todas las subcarpetas de la carpeta seleccionada y las subcarpetas de las subcarpetas
-                double[] tamArch = new double[Files.Length];
-                int i = 0, cont = 0;
-                double sumador = 0;
-                //cargamos las demás carpetas encontradas dentro de la carpeta seleccionada
-                foreach (var directory in dirs)
+                if (txtBoxRuta.Text != "")
                 {
-                    listBoxDir.Items.Add(directory.Name);
-                }
+                    DirectoryInfo dir = new DirectoryInfo(@txtBoxRuta.Text);
+                    FileInfo[] Files = dir.GetFiles("*." + cmbBoxExt.Text, SearchOption.AllDirectories);
+                    DirectoryInfo[] dirs = dir.GetDirectories("*", SearchOption.AllDirectories);//muestra todas las subcarpetas de la carpeta seleccionada y las subcarpetas de las subcarpetas
+                    double[] tamArch = new double[Files.Length];
+                    int i = 0, cont = 0;
+                    double sumador = 0;
+                    //cargamos las demás carpetas encontradas dentro de la carpeta seleccionada
+                    foreach (var directory in dirs)
+                    {
+                        listBoxDir.Items.Add(directory.Name);
+                    }
 
-                //cargamos los archivos en los listbox
-                foreach (var file in Files)
-                {
-                    listBoxNombre.Items.Add(file.Name);
-                    tamArch[i] = file.Length;
-                    i++;
+                    //cargamos los archivos en los listbox
+                    foreach (var file in Files)
+                    {
+                        listBoxNombre.Items.Add(file.Name);
+                        tamArch[i] = file.Length;
+                        i++;
+                    }
+                    //calculamos el tamaño de cada archivo pasandolo a KB y cargando al listbox
+                    for (int k = 0; k < tamArch.Length; k++)
+                    {
+                        sumador += tamArch[k];
+                        tamArch[k] /= 1042;
+                        listBoxTam.Items.Add(tamArch[k].ToString("0.00") + " KB");
+                        cont++;
+                    }
+                    sumador /= 1042;//pasamos a kb el total de los archivos
+                                    //calculamos el porcentaje del total de cada archivo
+                    for (int j = 0; j < tamArch.Length; j++)
+                    {
+                        tamArch[j] = (tamArch[j] * 100) / sumador;
+                        listBoxRelativo.Items.Add(tamArch[j].ToString("0.00") + "%");
+                    }
+                    //mostramos los resultados de tamaño total y de cuantos archivos tienen la extensión seleccionada
+                    lblCantArch.Text = cont.ToString();
+                    lblTamTotal.Text = sumador.ToString("0.00") + " KB";//muestra el tamaño total en KB                                
                 }
-                //calculamos el tamaño de cada archivo pasandolo a KB y cargando al listbox
-                for (int k = 0; k < tamArch.Length; k++)
+                else
                 {
-                    sumador += tamArch[k];
-                    tamArch[k] /= 1042;
-                    listBoxTam.Items.Add(tamArch[k].ToString("0.00") + " KB");
-                    cont++;
+                    MessageBox.Show("No hay una ruta especificada del directorio");
                 }
-                sumador /= 1042;//pasamos a kb el total de los archivos
-                //calculamos el porcentaje del total de cada archivo
-                for (int j = 0; j < tamArch.Length; j++)
-                {
-                    tamArch[j] = (tamArch[j] * 100) / sumador;
-                    listBoxRelativo.Items.Add(tamArch[j].ToString("0.00") + "%");
-                }
-                //mostramos los resultados de tamaño total y de cuantos archivos tienen la extensión seleccionada
-                lblCantArch.Text = cont.ToString();
-                lblTamTotal.Text = sumador.ToString("0.00") + " KB";//muestra el tamaño total en KB                                
             }
-            else
-            {
-                MessageBox.Show("No hay una ruta especificada del directorio");
-            }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
         }
         private void BtnSave_Click(object sender, EventArgs e)
         {
